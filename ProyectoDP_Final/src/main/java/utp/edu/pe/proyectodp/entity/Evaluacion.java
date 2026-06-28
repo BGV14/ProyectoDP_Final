@@ -1,4 +1,4 @@
-package utp.edu.pe.ProyectoDP.Entity;
+package utp.edu.pe.proyectodp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

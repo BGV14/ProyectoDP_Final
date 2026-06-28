@@ -17,7 +17,7 @@ public class Estudiante {
     private Long id;
 
     @Column(unique = true)
-    private int idEstudiante;
+    private int codigoEstudiante;
 
     private String estado;
 
