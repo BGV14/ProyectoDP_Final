@@ -4,14 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import utp.edu.pe.proyectodp.entity.Pago;
 import utp.edu.pe.proyectodp.repository.PagoRepository;
 import utp.edu.pe.proyectodp.service.impl.PagoServiceImpl;
+import utp.edu.pe.proyectodp.service.pattern.adapter.adapters.BCPAdapter;
+import utp.edu.pe.proyectodp.service.pattern.adapter.adapters.MastercardAdapter;
+import utp.edu.pe.proyectodp.service.pattern.adapter.adapters.YapeAdapter;
+import utp.edu.pe.proyectodp.service.pattern.adapter.interfaces.ProcesadorPago;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,13 +29,23 @@ class PagoServiceImplTest {
     @Mock
     private PagoRepository repoMock;
 
-    @InjectMocks
     private PagoServiceImpl service;
 
     @BeforeEach
     void setup() {
         ConfiguracionSistema.getInstancia().setMantenimiento(false);
         SesionSistema.getInstancia().iniciarSesion("admin", "ADMINISTRADOR");
+
+        List<ProcesadorPago> procesadores = List.of(
+                new YapeAdapter(),
+                new BCPAdapter(),
+                new MastercardAdapter()
+        );
+
+        service = new PagoServiceImpl(repoMock, procesadores);
+
+        // Simula el @PostConstruct que Spring ejecuta automáticamente
+        service.indexarProcesadores();
     }
 
     @DisplayName("Service - Pago con YAPE usa el Adapter y queda PROCESADO")

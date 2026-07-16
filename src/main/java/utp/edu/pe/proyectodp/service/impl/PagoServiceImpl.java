@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
 
 import lombok.RequiredArgsConstructor;
@@ -9,14 +10,14 @@ import utp.edu.pe.proyectodp.entity.Pago;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.PagoRepository;
 import utp.edu.pe.proyectodp.service.PagoService;
-import utp.edu.pe.proyectodp.service.pattern.adapter.adaptee.*;
-import utp.edu.pe.proyectodp.service.pattern.adapter.adapters.*;
 import utp.edu.pe.proyectodp.service.pattern.adapter.interfaces.ProcesadorPago;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.GeneradorCodigo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +25,14 @@ import java.util.Optional;
 public class PagoServiceImpl implements PagoService {
 
     private final PagoRepository repository;
+    private final List<ProcesadorPago> procesadoresDisponibles;
+    private Map<String, ProcesadorPago> procesadores;
+
+    @PostConstruct
+    public void indexarProcesadores() {
+        procesadores = procesadoresDisponibles.stream()
+                .collect(Collectors.toMap(ProcesadorPago::getCodigo, p -> p));
+    }
 
     @Override
     public List<Pago> listar() {
@@ -39,7 +48,7 @@ public class PagoServiceImpl implements PagoService {
     public Pago guardar(Pago pago) {
         var config = ConfiguracionSistema.getInstancia();
         if (config.isMantenimiento()) {
-            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+            throw new IllegalStateException("El sistema está¡ en mantenimiento. Intente mÃ¡s tarde.");
         }
 
         var sesion = SesionSistema.getInstancia();
@@ -56,30 +65,18 @@ public class PagoServiceImpl implements PagoService {
             procesador.procesarPago(pago.getMonto());
             pago.setEstadoPago("PROCESADO");
         } else {
-            log.warn("Método de pago no reconocido: {}. El pago se registrará sin procesar.", pago.getMetodoPago());
+            log.warn("Método de pago no reconocido: {}. El pago se registrará¡ sin procesar.", pago.getMetodoPago());
             pago.setEstadoPago("PENDIENTE");
         }
 
         return repository.save(pago);
     }
 
-    /**
-     * Resuelve, mediante el patrón Adapter, la implementación de {@link ProcesadorPago}
-     * correspondiente al método de pago solicitado.
-     */
     private ProcesadorPago resolverAdaptador(String metodoPago) {
         if (metodoPago == null) {
             return null;
         }
-        return switch (metodoPago.toUpperCase()) {
-            case "YAPE" -> new YapeAdapter(new PagoYape());
-            case "PLIN" -> new PlinAdapter(new PagoPlin());
-            case "VISA" -> new VisaAdapter(new PagoVisa());
-            case "MASTERCARD" -> new MastercardAdapter(new PagoMastercard());
-            case "BBVA" -> new BBVAAdapter(new PagoBBVA());
-            case "BCP" -> new BCPAdapter(new PagoBCP());
-            default -> null;
-        };
+        return procesadores.get(metodoPago.toUpperCase());
     }
 
     @Override

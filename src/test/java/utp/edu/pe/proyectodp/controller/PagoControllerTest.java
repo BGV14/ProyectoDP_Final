@@ -11,6 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 import utp.edu.pe.proyectodp.entity.Pago;
 import utp.edu.pe.proyectodp.service.PagoService;
+import utp.edu.pe.proyectodp.dto.mapper.PagoMapper;
+import utp.edu.pe.proyectodp.dto.PagoDTO;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -28,14 +32,37 @@ class PagoControllerTest {
     @MockitoBean
     private PagoService service;
 
+    @MockitoBean
+    private PagoMapper pagoMapper;
+
     private Pago pago;
     private Pago guardado;
 
     @BeforeEach
     void setup() {
-        pago = Pago.builder().monto(100.0).metodoPago("YAPE").build();
-        guardado = Pago.builder().id(1L).monto(100.0).metodoPago("YAPE")
-                .codigoPago("PAG-0001").estadoPago("PROCESADO").build();
+        pago = Pago.builder()
+                .monto(100.0)
+                .metodoPago("YAPE")
+                .build();
+
+        guardado = Pago.builder()
+                .id(1L)
+                .monto(100.0)
+                .metodoPago("YAPE")
+                .codigoPago("PAG-0001")
+                .estadoPago("PROCESADO")
+                .build();
+
+        PagoDTO dto = new PagoDTO(1L, "PAG-0001", 100.0, null, "PROCESADO", "YAPE");
+
+        when(pagoMapper.dtoToEntity(any(PagoDTO.class)))
+                .thenReturn(pago);
+
+        when(pagoMapper.entityToDto(any(Pago.class)))
+                .thenReturn(dto);
+
+        when(pagoMapper.entityToDto(any(List.class)))
+                .thenReturn(List.of(dto));
     }
 
     @DisplayName("Controller - Registrar pago exitosamente")

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.PagoDTO;
+import utp.edu.pe.proyectodp.dto.mapper.PagoMapper;
 import utp.edu.pe.proyectodp.entity.Pago;
 import utp.edu.pe.proyectodp.service.PagoService;
 
@@ -20,24 +22,27 @@ import java.util.List;
 public class PagoController {
 
     private final PagoService pagoService;
+    private final PagoMapper mapper;
 
     @GetMapping
-    public List<Pago> listar(){
-        return pagoService.listar();
+    public List<PagoDTO> listar() {
+        return mapper.entityToDto(pagoService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pago> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PagoDTO> buscarPorId(@PathVariable Long id) {
         return pagoService.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Object> registrar(@Valid @RequestBody Pago pago) {
+    public ResponseEntity<Object> registrar(@Valid @RequestBody PagoDTO pagoDTO) {
         try {
-            Pago guardado = pagoService.guardar(pago);
-            return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+            Pago entidad = mapper.dtoToEntity(pagoDTO);
+            Pago guardado = pagoService.guardar(entidad);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
         } catch (IllegalStateException e) {
             log.warn("Pago rechazado: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -48,9 +53,11 @@ public class PagoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> actualizar(@PathVariable Long id, @Valid @RequestBody Pago pago) {
+    public ResponseEntity<Object> actualizar(@PathVariable Long id, @Valid @RequestBody PagoDTO pagoDTO) {
         try {
-            return ResponseEntity.ok(pagoService.actualizar(id, pago));
+            Pago entidad = mapper.dtoToEntity(pagoDTO);
+            Pago actualizado = pagoService.actualizar(id, entidad);
+            return ResponseEntity.ok(mapper.entityToDto(actualizado));
         } catch (Exception e) {
             log.error("Error al actualizar el pago con id {}", id, e);
             return ResponseEntity.badRequest().body(e.getMessage());

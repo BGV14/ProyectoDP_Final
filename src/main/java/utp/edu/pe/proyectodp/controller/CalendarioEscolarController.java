@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.CalendarioEscolarDTO;
+import utp.edu.pe.proyectodp.dto.mapper.CalendarioEscolarMapper;
 import utp.edu.pe.proyectodp.entity.CalendarioEscolar;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.CalendarioEscolarService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class CalendarioEscolarController {
 
     private final CalendarioEscolarService service;
+    private final CalendarioEscolarMapper mapper;
 
     @GetMapping
-    public List<CalendarioEscolar> listar() {
-        return service.listar();
+    public List<CalendarioEscolarDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CalendarioEscolar> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<CalendarioEscolarDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "CalendarioEscolar no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<CalendarioEscolar> registrar(@Valid @RequestBody CalendarioEscolar recurso) {
-        CalendarioEscolar guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<CalendarioEscolarDTO> registrar(@Valid @RequestBody CalendarioEscolarDTO recurso) {
+        CalendarioEscolar entidad = mapper.dtoToEntity(recurso);
+        CalendarioEscolar guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CalendarioEscolar> actualizar(@PathVariable Long id, @Valid @RequestBody CalendarioEscolar recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<CalendarioEscolarDTO> actualizar(@PathVariable Long id, @Valid @RequestBody CalendarioEscolarDTO recurso) {
+        CalendarioEscolar entidad = mapper.dtoToEntity(recurso);
+        CalendarioEscolar actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

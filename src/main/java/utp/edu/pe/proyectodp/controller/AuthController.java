@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import utp.edu.pe.proyectodp.controller.dto.LoginRequest;
+import utp.edu.pe.proyectodp.dto.LoginRequest;
 import utp.edu.pe.proyectodp.service.AuthService;
 
 import java.util.Map;

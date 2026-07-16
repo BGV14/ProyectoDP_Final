@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.MatriculaDTO;
+import utp.edu.pe.proyectodp.dto.mapper.MatriculaMapper;
 import utp.edu.pe.proyectodp.entity.Matricula;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.MatriculaService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class MatriculaController {
 
     private final MatriculaService service;
+    private final MatriculaMapper mapper;
 
     @GetMapping
-    public List<Matricula> listar() {
-        return service.listar();
+    public List<MatriculaDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Matricula> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<MatriculaDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Matricula no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Matricula> registrar(@Valid @RequestBody Matricula recurso) {
-        Matricula guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<MatriculaDTO> registrar(@Valid @RequestBody MatriculaDTO recurso) {
+        Matricula entidad = mapper.dtoToEntity(recurso);
+        Matricula guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Matricula> actualizar(@PathVariable Long id, @Valid @RequestBody Matricula recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<MatriculaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MatriculaDTO recurso) {
+        Matricula entidad = mapper.dtoToEntity(recurso);
+        Matricula actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

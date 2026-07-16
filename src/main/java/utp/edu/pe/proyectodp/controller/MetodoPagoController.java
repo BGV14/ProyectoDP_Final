@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.MetodoPagoDTO;
+import utp.edu.pe.proyectodp.dto.mapper.MetodoPagoMapper;
 import utp.edu.pe.proyectodp.entity.MetodoPago;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.MetodoPagoService;
@@ -16,6 +18,9 @@ import java.util.List;
 /**
  * Expone las operaciones CRUD de {@link MetodoPago} que ya existian en
  * {@link MetodoPagoService} pero que no estaban disponibles vía REST.
+ *
+ * Homologado con {@link AdministradorController}: usa {@link MetodoPagoMapper}
+ * para no exponer la entidad JPA directamente en la capa REST.
  */
 @Slf4j
 @Tag(name = "Métodos de Pago", description = "Gestión de métodos de pago")
@@ -25,29 +30,34 @@ import java.util.List;
 public class MetodoPagoController {
 
     private final MetodoPagoService service;
+    private final MetodoPagoMapper mapper;
 
     @GetMapping
-    public List<MetodoPago> listar() {
-        return service.listar();
+    public List<MetodoPagoDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MetodoPago> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<MetodoPagoDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "MetodoPago no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<MetodoPago> registrar(@Valid @RequestBody MetodoPago recurso) {
-        MetodoPago guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<MetodoPagoDTO> registrar(@Valid @RequestBody MetodoPagoDTO recurso) {
+        MetodoPago entidad = mapper.dtoToEntity(recurso);
+        MetodoPago guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MetodoPago> actualizar(@PathVariable Long id, @Valid @RequestBody MetodoPago recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<MetodoPagoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MetodoPagoDTO recurso) {
+        MetodoPago entidad = mapper.dtoToEntity(recurso);
+        MetodoPago actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

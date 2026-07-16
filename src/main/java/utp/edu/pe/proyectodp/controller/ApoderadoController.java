@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.ApoderadoDTO;
+import utp.edu.pe.proyectodp.dto.mapper.ApoderadoMapper;
 import utp.edu.pe.proyectodp.entity.Apoderado;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.ApoderadoService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class ApoderadoController {
 
     private final ApoderadoService service;
+    private final ApoderadoMapper mapper;
 
     @GetMapping
-    public List<Apoderado> listar() {
-        return service.listar();
+    public List<ApoderadoDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Apoderado> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ApoderadoDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Apoderado no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Apoderado> registrar(@Valid @RequestBody Apoderado recurso) {
-        Apoderado guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<ApoderadoDTO> registrar(@Valid @RequestBody ApoderadoDTO recurso) {
+        Apoderado entidad = mapper.dtoToEntity(recurso);
+        Apoderado guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Apoderado> actualizar(@PathVariable Long id, @Valid @RequestBody Apoderado recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<ApoderadoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody ApoderadoDTO recurso) {
+        Apoderado entidad = mapper.dtoToEntity(recurso);
+        Apoderado actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

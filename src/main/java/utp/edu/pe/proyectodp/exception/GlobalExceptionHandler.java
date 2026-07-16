@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-public class GloblalExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> manejarRecursoNoEncontrado(RecursoNoEncontradoException ex) {
@@ -46,11 +47,10 @@ public class GloblalExceptionHandler {
 
     private Map<String, Object> cuerpoError(HttpStatus status, String mensaje) {
         Map<String, Object> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("timestamp", LocalDateTime.now());
+        cuerpo.put("timestamp", LocalDateTime.now(ZoneId.of("America/Lima")));
         cuerpo.put("status", status.value());
         cuerpo.put("error", status.getReasonPhrase());
         cuerpo.put("mensaje", mensaje);
         return cuerpo;
     }
-
 }

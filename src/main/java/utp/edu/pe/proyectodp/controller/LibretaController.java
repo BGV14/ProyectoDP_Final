@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.LibretaDTO;
+import utp.edu.pe.proyectodp.dto.mapper.LibretaMapper;
 import utp.edu.pe.proyectodp.entity.Libreta;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.LibretaService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class LibretaController {
 
     private final LibretaService service;
+    private final LibretaMapper mapper;
 
     @GetMapping
-    public List<Libreta> listar() {
-        return service.listar();
+    public List<LibretaDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Libreta> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<LibretaDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Libreta no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Libreta> registrar(@Valid @RequestBody Libreta recurso) {
-        Libreta guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<LibretaDTO> registrar(@Valid @RequestBody LibretaDTO recurso) {
+        Libreta entidad = mapper.dtoToEntity(recurso);
+        Libreta guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Libreta> actualizar(@PathVariable Long id, @Valid @RequestBody Libreta recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<LibretaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody LibretaDTO recurso) {
+        Libreta entidad = mapper.dtoToEntity(recurso);
+        Libreta actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

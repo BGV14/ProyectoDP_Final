@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.SeccionDTO;
+import utp.edu.pe.proyectodp.dto.mapper.SeccionMapper;
 import utp.edu.pe.proyectodp.entity.Seccion;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.SeccionService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class SeccionController {
 
     private final SeccionService service;
+    private final SeccionMapper mapper;
 
     @GetMapping
-    public List<Seccion> listar() {
-        return service.listar();
+    public List<SeccionDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seccion> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<SeccionDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Seccion no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Seccion> registrar(@Valid @RequestBody Seccion recurso) {
-        Seccion guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<SeccionDTO> registrar(@Valid @RequestBody SeccionDTO recurso) {
+        Seccion entidad = mapper.dtoToEntity(recurso);
+        Seccion guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Seccion> actualizar(@PathVariable Long id, @Valid @RequestBody Seccion recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<SeccionDTO> actualizar(@PathVariable Long id, @Valid @RequestBody SeccionDTO recurso) {
+        Seccion entidad = mapper.dtoToEntity(recurso);
+        Seccion actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

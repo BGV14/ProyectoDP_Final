@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.AsistenciaDTO;
+import utp.edu.pe.proyectodp.dto.mapper.AsistenciaMapper;
 import utp.edu.pe.proyectodp.entity.Asistencia;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.AsistenciaService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class AsistenciaController {
 
     private final AsistenciaService service;
+    private final AsistenciaMapper mapper;
 
     @GetMapping
-    public List<Asistencia> listar() {
-        return service.listar();
+    public List<AsistenciaDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Asistencia> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<AsistenciaDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Asistencia no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Asistencia> registrar(@Valid @RequestBody Asistencia recurso) {
-        Asistencia guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<AsistenciaDTO> registrar(@Valid @RequestBody AsistenciaDTO recurso) {
+        Asistencia entidad = mapper.dtoToEntity(recurso);
+        Asistencia guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Asistencia> actualizar(@PathVariable Long id, @Valid @RequestBody Asistencia recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<AsistenciaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody AsistenciaDTO recurso) {
+        Asistencia entidad = mapper.dtoToEntity(recurso);
+        Asistencia actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

@@ -1,11 +1,14 @@
-package utp.edu.pe.proyectodp;
+package utp.edu.pe.proyectodp.integration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import utp.edu.pe.proyectodp.entity.Pago;
 import utp.edu.pe.proyectodp.service.AuthService;
 import utp.edu.pe.proyectodp.service.PagoService;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,15 +16,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class PagoServiceAdapterTest {
+
     @Autowired
     private AuthService authService;
 
     @Autowired
     private PagoService pagoService;
 
+    @BeforeEach
+    void setup() {
+        ConfiguracionSistema.getInstancia().setMantenimiento(false);
+
+        boolean login = authService.login("admin", "1234");
+
+        if (!login) {
+            throw new IllegalStateException("No se pudo iniciar sesión de prueba");
+        }
+    }
+
     @Test
     void guardarPagoConYapeUsaElAdapterYQuedaProcesado() {
-        // El singleton exige sesión iniciada, así que autenticamos primero
         authService.login("admin", "1234");
         Pago pago = Pago.builder()
                 .monto(150.0)
@@ -43,7 +57,7 @@ class PagoServiceAdapterTest {
         Pago pago = Pago.builder()
                 .monto(80.0)
                 .fechaPago("2026-07-15")
-                .metodoPago("PAYPAL") // no tiene adapter
+                .metodoPago("PAYPAL")
                 .build();
 
         Pago guardado = pagoService.guardar(pago);
@@ -53,15 +67,18 @@ class PagoServiceAdapterTest {
 
     @Test
     void guardarPagoSinSesionLanzaExcepcion() {
-        // No hacemos login: SesionSistema.validarAutenticacion() debe rechazar
-        // Nota: como el Singleton es estático, este test debe correr aislado
-        // o resetear el estado si otro test ya autenticó antes.
+
+        SesionSistema.getInstancia().cerrarSesion();
+
         Pago pago = Pago.builder()
                 .monto(50.0)
                 .fechaPago("2026-07-15")
                 .metodoPago("VISA")
                 .build();
 
-        assertThrows(IllegalStateException.class, () -> pagoService.guardar(pago));
+        assertThrows(
+                IllegalStateException.class,
+                () -> pagoService.guardar(pago)
+        );
     }
 }

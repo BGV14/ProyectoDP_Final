@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.HorarioDTO;
+import utp.edu.pe.proyectodp.dto.mapper.HorarioMapper;
 import utp.edu.pe.proyectodp.entity.Horario;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.HorarioService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class HorarioController {
 
     private final HorarioService service;
+    private final HorarioMapper mapper;
 
     @GetMapping
-    public List<Horario> listar() {
-        return service.listar();
+    public List<HorarioDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Horario> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<HorarioDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Horario no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Horario> registrar(@Valid @RequestBody Horario recurso) {
-        Horario guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<HorarioDTO> registrar(@Valid @RequestBody HorarioDTO recurso) {
+        Horario entidad = mapper.dtoToEntity(recurso);
+        Horario guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Horario> actualizar(@PathVariable Long id, @Valid @RequestBody Horario recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<HorarioDTO> actualizar(@PathVariable Long id, @Valid @RequestBody HorarioDTO recurso) {
+        Horario entidad = mapper.dtoToEntity(recurso);
+        Horario actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

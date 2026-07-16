@@ -16,21 +16,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public boolean login(String user, String password) {
+
         return administradorRepository.findAll().stream()
+                .peek(admin -> {
+                    System.out.println("BD usuario: " + admin.getUser());
+                    System.out.println("BD password: " + admin.getPassword());
+                })
                 .filter(admin -> admin.getUser().equals(user)
                         && passwordEncoder.matches(password, admin.getPassword()))
                 .findFirst()
                 .map(admin -> {
-                    var sesion = SesionSistema.getInstancia();
-                    sesion.setUsuario(admin.getUser());
-                    sesion.setRol("ADMINISTRADOR");
-                    sesion.setAutenticado(true);
-                    log.info("Inicio de sesión exitoso para el usuario: {}", admin.getUser());
+                    SesionSistema.getInstancia().setUsuario(admin.getUser());
+                    SesionSistema.getInstancia().setRol("ADMINISTRADOR");
+                    SesionSistema.getInstancia().setAutenticado(true);
                     return true;
                 })
-                .orElseGet(() -> {
-                    log.warn("Intento de login fallido para el usuario: {}", user);
-                    return false;
-                });
+                .orElse(false);
     }
 }

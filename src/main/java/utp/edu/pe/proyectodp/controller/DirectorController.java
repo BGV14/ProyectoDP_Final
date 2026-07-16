@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.DirectorDTO;
+import utp.edu.pe.proyectodp.dto.mapper.DirectorMapper;
 import utp.edu.pe.proyectodp.entity.Director;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.DirectorService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class DirectorController {
 
     private final DirectorService service;
+    private final DirectorMapper mapper;
 
     @GetMapping
-    public List<Director> listar() {
-        return service.listar();
+    public List<DirectorDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Director> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<DirectorDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Director no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Director> registrar(@Valid @RequestBody Director recurso) {
-        Director guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<DirectorDTO> registrar(@Valid @RequestBody DirectorDTO recurso) {
+        Director entidad = mapper.dtoToEntity(recurso);
+        Director guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Director> actualizar(@PathVariable Long id, @Valid @RequestBody Director recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<DirectorDTO> actualizar(@PathVariable Long id, @Valid @RequestBody DirectorDTO recurso) {
+        Director entidad = mapper.dtoToEntity(recurso);
+        Director actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import utp.edu.pe.proyectodp.dto.NotaDTO;
+import utp.edu.pe.proyectodp.dto.mapper.NotaMapper;
 import utp.edu.pe.proyectodp.entity.Nota;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.service.NotaService;
@@ -25,29 +27,34 @@ import java.util.List;
 public class NotaController {
 
     private final NotaService service;
+    private final NotaMapper mapper;
 
     @GetMapping
-    public List<Nota> listar() {
-        return service.listar();
+    public List<NotaDTO> listar() {
+        return mapper.entityToDto(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Nota> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<NotaDTO> buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
+                .map(mapper::entityToDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Nota no encontrado con id " + id));
     }
 
     @PostMapping
-    public ResponseEntity<Nota> registrar(@Valid @RequestBody Nota recurso) {
-        Nota guardado = service.guardar(recurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<NotaDTO> registrar(@Valid @RequestBody NotaDTO recurso) {
+        Nota entidad = mapper.dtoToEntity(recurso);
+        Nota guardado = service.guardar(entidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Nota> actualizar(@PathVariable Long id, @Valid @RequestBody Nota recurso) {
-        return ResponseEntity.ok(service.actualizar(id, recurso));
+    public ResponseEntity<NotaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody NotaDTO recurso) {
+        Nota entidad = mapper.dtoToEntity(recurso);
+        Nota actualizado = service.actualizar(id, entidad);
+        return ResponseEntity.ok(mapper.entityToDto(actualizado));
     }
 
     @DeleteMapping("/{id}")

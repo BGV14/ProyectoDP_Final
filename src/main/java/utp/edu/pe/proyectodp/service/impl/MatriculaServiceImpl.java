@@ -25,6 +25,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     private final MatriculaRepository repository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MatriculaFactory matriculaFactory;
 
     @Override
     public List<Matricula> listar() {
@@ -59,7 +60,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         }
         log.info("Matrícula registrada por el usuario: {}", sesion.getUsuario());
 
-        var procesador = MatriculaFactory.crearMatricula(matricula.getTipoMatricula());
+        var procesador = matriculaFactory.crearMatricula(matricula.getTipoMatricula());
         procesador.procesarMatricula();
 
         Matricula guardada = repository.save(matricula);
