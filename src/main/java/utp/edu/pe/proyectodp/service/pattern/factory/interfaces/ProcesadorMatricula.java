@@ -1,5 +1,5 @@
 package utp.edu.pe.proyectodp.service.pattern.factory.interfaces;
 
-public interface Matricula {
+public interface ProcesadorMatricula {
     void procesarMatricula();
 }

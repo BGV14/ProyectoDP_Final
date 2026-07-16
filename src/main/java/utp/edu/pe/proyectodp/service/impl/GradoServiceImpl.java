@@ -1,8 +1,13 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Grado;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.GradoRepository;
 import utp.edu.pe.proyectodp.service.GradoService;
 
@@ -27,6 +32,16 @@ public class GradoServiceImpl implements GradoService {
 
     @Override
     public Grado guardar(Grado grado) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         return repository.save(grado);
     }
 
@@ -39,7 +54,7 @@ public class GradoServiceImpl implements GradoService {
                     registro.setNivel(grado.getNivel());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Grado no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Grado no encontrado"));
     }
 
     @Override

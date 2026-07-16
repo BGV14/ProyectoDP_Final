@@ -1,8 +1,13 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Docente;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.DocenteRepository;
 import utp.edu.pe.proyectodp.service.DocenteService;
 
@@ -26,6 +31,16 @@ public class DocenteServiceImpl implements DocenteService {
 
     @Override
     public Docente guardar(Docente docente) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         return repository.save(docente);
     }
 
@@ -40,7 +55,7 @@ public class DocenteServiceImpl implements DocenteService {
                     registro.setCorreo(docente.getCorreo());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Docente no encontrado"));
     }
 
     @Override

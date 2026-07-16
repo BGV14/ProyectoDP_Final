@@ -1,19 +1,17 @@
 package utp.edu.pe.proyectodp.service.pattern.observer;
 
-import org.springframework.context.ApplicationEvent;
-import utp.edu.pe.proyectodp.entity.Matricula;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
-public class MatriculaConfirmadaEvent extends ApplicationEvent {
+@Slf4j
+@Component
+public class MatriculaObserver {
 
-    private final Matricula matricula;
-
-    public MatriculaConfirmadaEvent(Object source, Matricula matricula) {
-        super(source);
-        this.matricula = matricula;
-    }
-
-    public Matricula getMatricula() {
-        return matricula;
-
+    @EventListener
+    public void onMatriculaConfirmada(MatriculaConfirmadaEvent event) {
+        var matricula = event.getMatricula();
+        log.info("OBSERVER [Matrícula]: Matrícula confirmada, código: {}",
+                matricula.getCodigoMatricula());
     }
 }

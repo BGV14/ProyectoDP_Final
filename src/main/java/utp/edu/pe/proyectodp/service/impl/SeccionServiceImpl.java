@@ -1,8 +1,13 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Seccion;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.SeccionRepository;
 import utp.edu.pe.proyectodp.service.SeccionService;
 
@@ -27,6 +32,16 @@ public class SeccionServiceImpl implements SeccionService {
 
     @Override
     public Seccion guardar(Seccion seccion) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         return repository.save(seccion);
     }
 
@@ -39,7 +54,7 @@ public class SeccionServiceImpl implements SeccionService {
                     registro.setCapacidad(seccion.getCapacidad());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Sección no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("SecciÃ³n no encontrada"));
     }
 
     @Override

@@ -5,7 +5,7 @@ import utp.edu.pe.proyectodp.entity.Matricula;
 
 public class MatriculaConfirmadaEvent extends ApplicationEvent {
 
-    private final Matricula matricula;
+    private final transient Matricula matricula;
 
     public MatriculaConfirmadaEvent(Object source, Matricula matricula) {
         super(source);

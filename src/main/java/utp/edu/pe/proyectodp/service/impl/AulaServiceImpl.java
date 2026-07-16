@@ -1,8 +1,13 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Aula;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.AulaRepository;
 import utp.edu.pe.proyectodp.service.AulaService;
 
@@ -27,6 +32,16 @@ public class AulaServiceImpl implements AulaService {
 
     @Override
     public Aula guardar(Aula aula) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         return repository.save(aula);
     }
 
@@ -40,7 +55,7 @@ public class AulaServiceImpl implements AulaService {
                     registro.setPabellon(aula.getPabellon());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Aula no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Aula no encontrada"));
     }
 
     @Override

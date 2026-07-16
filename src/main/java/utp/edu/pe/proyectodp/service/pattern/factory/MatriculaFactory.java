@@ -1,16 +1,20 @@
 package utp.edu.pe.proyectodp.service.pattern.factory;
 
-import utp.edu.pe.proyectodp.service.pattern.factory.interfaces.Matricula;
+import utp.edu.pe.proyectodp.service.pattern.factory.interfaces.ProcesadorMatricula;
 
 public class MatriculaFactory {
 
-    public static Matricula crearMatricula(String tipo) {
+    private MatriculaFactory(){
+
+    }
+
+    public static ProcesadorMatricula crearMatricula(String tipo) {
         if (tipo.equalsIgnoreCase("REGULAR")) {
-            return new MatriculaRegular();
+            return new ProcesadorMatriculaRegular();
         } else if (tipo.equalsIgnoreCase("TRASLADO")) {
-            return new MatriculaTraslado();
+            return new ProcesadorMatriculaTraslado();
         } else if (tipo.equalsIgnoreCase("EXTEMPORANEA")) {
-            return new MatriculaExtemporanea();
+            return new ProcesadorMatriculaExtemporanea();
         }
         throw new IllegalArgumentException("Tipo de matrícula no válido: " + tipo);
     }

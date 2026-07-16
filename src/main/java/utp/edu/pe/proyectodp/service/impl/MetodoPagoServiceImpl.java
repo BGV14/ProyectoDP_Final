@@ -1,8 +1,13 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.MetodoPago;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.MetodoPagoRepository;
 import utp.edu.pe.proyectodp.service.MetodoPagoService;
 
@@ -27,6 +32,16 @@ public class MetodoPagoServiceImpl implements MetodoPagoService {
 
     @Override
     public MetodoPago guardar(MetodoPago metodoPago) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         return repository.save(metodoPago);
     }
 
@@ -38,7 +53,7 @@ public class MetodoPagoServiceImpl implements MetodoPagoService {
                     registro.setDescripcion(metodoPago.getDescripcion());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Método de pago no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("MÃ©todo de pago no encontrado"));
     }
 
     @Override

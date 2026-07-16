@@ -1,14 +1,18 @@
 package utp.edu.pe.proyectodp.service.impl;
 
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Pago;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.PagoRepository;
 import utp.edu.pe.proyectodp.service.PagoService;
 import utp.edu.pe.proyectodp.service.pattern.adapter.adaptee.*;
 import utp.edu.pe.proyectodp.service.pattern.adapter.adapters.*;
 import utp.edu.pe.proyectodp.service.pattern.adapter.interfaces.ProcesadorPago;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.GeneradorCodigo;
 
 import java.util.List;
@@ -33,6 +37,16 @@ public class PagoServiceImpl implements PagoService {
 
     @Override
     public Pago guardar(Pago pago) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
+        }
+
         if (pago.getCodigoPago() == null || pago.getCodigoPago().isBlank()) {
             pago.setCodigoPago(GeneradorCodigo.getInstancia().generarCodigoPago());
         }
@@ -79,7 +93,7 @@ public class PagoServiceImpl implements PagoService {
                     registro.setMetodoPago(pago.getMetodoPago());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
     }
 
     @Override

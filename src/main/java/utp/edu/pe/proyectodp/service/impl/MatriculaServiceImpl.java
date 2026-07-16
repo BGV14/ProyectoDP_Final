@@ -5,9 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Matricula;
+import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
 import utp.edu.pe.proyectodp.repository.MatriculaRepository;
 import utp.edu.pe.proyectodp.service.MatriculaService;
+import utp.edu.pe.proyectodp.service.pattern.factory.MatriculaFactory;
 import utp.edu.pe.proyectodp.service.pattern.observer.MatriculaConfirmadaEvent;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.AnioEscolarSingleton;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
+import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +40,27 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     @Override
     public Matricula guardar(Matricula matricula) {
+        var config = ConfiguracionSistema.getInstancia();
+        if (config.isMantenimiento()) {
+            throw new IllegalStateException("El sistema está en mantenimiento. Intente más tarde.");
+        }
+
         log.info("Guardando nueva matrícula para el código: {}", matricula.getCodigoMatricula());
+
+        var anioActivo = AnioEscolarSingleton.getInstancia();
+        if (!anioActivo.isActivo()) {
+            throw new IllegalStateException("No hay un año escolar activo configurado");
+        }
+        log.info("Registrando matrícula para el año escolar: {}", anioActivo.getAnio());
+
+        var sesion = SesionSistema.getInstancia();
+        if (!sesion.isAutenticado()) {
+            throw new IllegalStateException("Debe iniciar sesión para registrar una matrícula");
+        }
+        log.info("Matrícula registrada por el usuario: {}", sesion.getUsuario());
+
+        var procesador = MatriculaFactory.crearMatricula(matricula.getTipoMatricula());
+        procesador.procesarMatricula();
 
         Matricula guardada = repository.save(matricula);
         eventPublisher.publishEvent(new MatriculaConfirmadaEvent(this, guardada));
@@ -54,7 +79,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                     registro.setTipoMatricula(matricula.getTipoMatricula());
                     return repository.save(registro);
                 })
-                .orElseThrow(() -> new RuntimeException("Matrícula no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Matrícula no encontrada"));
     }
 
     @Override
