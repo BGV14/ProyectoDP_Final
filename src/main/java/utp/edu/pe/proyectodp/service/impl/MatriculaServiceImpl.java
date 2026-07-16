@@ -37,6 +37,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                     registro.setCodigoMatricula(matricula.getCodigoMatricula());
                     registro.setFechaMatricula(matricula.getFechaMatricula());
                     registro.setTurno(matricula.getTurno());
+                    registro.setTipoMatricula(matricula.getTipoMatricula());
                     return repository.save(registro);
                 })
                 .orElseThrow(() -> new RuntimeException("Matrícula no encontrada"));

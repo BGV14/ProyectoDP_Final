@@ -21,4 +21,6 @@ public class Matricula {
     private String fechaMatricula;
     private String turno;
 
+    private String tipoMatricula;
+
 }

@@ -21,4 +21,7 @@ public class Pago {
     private double monto;
     private String fechaPago;
     private String estadoPago;
+
+    /** Método de pago solicitado: YAPE, PLIN, VISA, MASTERCARD, BBVA o BCP. */
+    private String metodoPago;
 }

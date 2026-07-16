@@ -4,7 +4,7 @@ public class PagoBCP {
 
     public void pagarConBCP(double monto){
 
-        System.out.println("Pago realizado con banco BCP: S/ " + monto);
+        log.info("Pago realizado con banco BCP: S/ " + monto);
 
     }
 }

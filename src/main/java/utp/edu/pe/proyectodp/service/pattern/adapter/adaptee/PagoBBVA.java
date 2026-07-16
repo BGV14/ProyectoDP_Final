@@ -4,6 +4,6 @@ public class PagoBBVA {
 
     public void pagarConBBVA(double monto){
 
-        System.out.println("Pago realizado con banco BBVA: S/ " + monto);
+        log.info("Pago realizado con banco BBVA: S/ " + monto);
     }
 }

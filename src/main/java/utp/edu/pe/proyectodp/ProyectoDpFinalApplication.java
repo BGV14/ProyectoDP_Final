@@ -1,4 +1,4 @@
-package utp.edu.pe.ProyectoDP;
+package utp.edu.pe.proyectodp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
