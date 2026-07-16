@@ -22,4 +22,17 @@ public class SesionSistema {
 
         return instancia;
     }
+
+    public void iniciarSesion(String usuario, String rol) {
+        this.usuario = usuario;
+        this.rol = rol;
+        this.autenticado = true;
+    }
+
+    public void cerrarSesion() {
+        this.usuario = null;
+        this.rol = null;
+        this.autenticado = false;
+    }
+
 }

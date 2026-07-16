@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import utp.edu.pe.proyectodp.service.AuthService;
 
 import java.util.Map;
 
+@Tag(name = "Autenticación", description = "Login y gestión de sesión")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

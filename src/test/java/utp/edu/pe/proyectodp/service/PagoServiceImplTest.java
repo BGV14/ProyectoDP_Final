@@ -31,12 +31,12 @@ class PagoServiceImplTest {
     void setup() {
         ConfiguracionSistema.getInstancia().setMantenimiento(false);
         SesionSistema.getInstancia().iniciarSesion("admin", "ADMINISTRADOR");
-        when(repoMock.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     @DisplayName("Service - Pago con YAPE usa el Adapter y queda PROCESADO")
     @Test
     void guardar_conYape_quedaProcesado() {
+        when(repoMock.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Pago pago = Pago.builder().monto(100.0).metodoPago("YAPE").build();
         Pago resultado = service.guardar(pago);
         assertThat(resultado.getEstadoPago()).isEqualTo("PROCESADO");
@@ -46,6 +46,7 @@ class PagoServiceImplTest {
     @DisplayName("Service - Pago con BCP usa el Adapter y queda PROCESADO")
     @Test
     void guardar_conBcp_quedaProcesado() {
+        when(repoMock.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Pago pago = Pago.builder().monto(250.0).metodoPago("BCP").build();
         Pago resultado = service.guardar(pago);
         assertThat(resultado.getEstadoPago()).isEqualTo("PROCESADO");
@@ -54,6 +55,7 @@ class PagoServiceImplTest {
     @DisplayName("Service - Metodo de pago no reconocido queda PENDIENTE")
     @Test
     void guardar_conMetodoNoReconocido_quedaPendiente() {
+        when(repoMock.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Pago pago = Pago.builder().monto(80.0).metodoPago("PAYPAL").build();
         Pago resultado = service.guardar(pago);
         assertThat(resultado.getEstadoPago()).isEqualTo("PENDIENTE");
@@ -78,6 +80,7 @@ class PagoServiceImplTest {
     @DisplayName("Service - No sobrescribe un codigo de pago ya asignado")
     @Test
     void guardar_conCodigoExistente_noLoRegenera() {
+        when(repoMock.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Pago pago = Pago.builder().monto(30.0).metodoPago("MASTERCARD")
                 .codigoPago("PAG-9999").build();
         Pago resultado = service.guardar(pago);

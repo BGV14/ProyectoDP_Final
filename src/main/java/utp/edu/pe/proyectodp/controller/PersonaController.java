@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.List;
  * {@link PersonaService} pero que no estaban disponibles vía REST.
  */
 @Slf4j
+@Tag(name = "Personas", description = "Gestión de personas del sistema")
 @RestController
 @RequestMapping("/api/personas")
 @RequiredArgsConstructor

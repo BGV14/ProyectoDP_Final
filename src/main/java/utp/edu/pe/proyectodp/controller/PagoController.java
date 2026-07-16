@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import utp.edu.pe.proyectodp.service.PagoService;
 import java.util.List;
 
 @Slf4j
+@Tag(name = "Pagos", description = "Gestión de pagos y procesamiento con adapters")
 @RestController
 @RequestMapping("/api/pagos")
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class PagoController {
         return pagoService.listar();
     }
 
-    @GetMapping("/{id")
+    @GetMapping("/{id}")
     public ResponseEntity<Pago> buscarPorId(@PathVariable Long id) {
         return pagoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -55,7 +57,7 @@ public class PagoController {
         }
     }
 
-    @DeleteMapping("{/id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         pagoService.eliminar(id);
         return ResponseEntity.noContent().build();

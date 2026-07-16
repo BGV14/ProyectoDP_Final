@@ -67,7 +67,7 @@ class PagoControllerTest {
     void registrar_conErrorInesperado_returnsInternalServerError() throws Exception {
         when(service.guardar(any())).thenThrow(new RuntimeException("fallo inesperado"));
 
-        mockMvc.perform(post("/api/pago")
+        mockMvc.perform(post("/api/pagos")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(pago)))
                 .andExpect(status().isInternalServerError());
