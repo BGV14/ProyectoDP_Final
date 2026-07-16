@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class CursoController {
     }
 
     @PostMapping
-    public ResponseEntity<Curso> registrar(@RequestBody Curso recurso) {
+    public ResponseEntity<Curso> registrar(@Valid @RequestBody Curso recurso) {
         Curso guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Curso> actualizar(@PathVariable Long id, @RequestBody Curso recurso) {
+    public ResponseEntity<Curso> actualizar(@PathVariable Long id, @Valid @RequestBody Curso recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

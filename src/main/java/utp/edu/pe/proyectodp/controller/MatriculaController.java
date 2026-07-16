@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class MatriculaController {
     }
 
     @PostMapping
-    public ResponseEntity<Matricula> registrar(@RequestBody Matricula recurso) {
+    public ResponseEntity<Matricula> registrar(@Valid @RequestBody Matricula recurso) {
         Matricula guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Matricula> actualizar(@PathVariable Long id, @RequestBody Matricula recurso) {
+    public ResponseEntity<Matricula> actualizar(@PathVariable Long id, @Valid @RequestBody Matricula recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

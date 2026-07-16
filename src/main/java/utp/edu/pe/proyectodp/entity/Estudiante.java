@@ -1,6 +1,8 @@
+// entity/Estudiante.java
 package utp.edu.pe.proyectodp.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Entity
@@ -16,6 +18,7 @@ public class Estudiante {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Positive(message = "El código del estudiante debe ser un número positivo")
     @Column(unique = true)
     private int codigoEstudiante;
 

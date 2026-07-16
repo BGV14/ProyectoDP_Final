@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class CalendarioEscolarController {
     }
 
     @PostMapping
-    public ResponseEntity<CalendarioEscolar> registrar(@RequestBody CalendarioEscolar recurso) {
+    public ResponseEntity<CalendarioEscolar> registrar(@Valid @RequestBody CalendarioEscolar recurso) {
         CalendarioEscolar guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CalendarioEscolar> actualizar(@PathVariable Long id, @RequestBody CalendarioEscolar recurso) {
+    public ResponseEntity<CalendarioEscolar> actualizar(@PathVariable Long id, @Valid @RequestBody CalendarioEscolar recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

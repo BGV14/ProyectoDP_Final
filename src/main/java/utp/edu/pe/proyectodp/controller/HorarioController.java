@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class HorarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Horario> registrar(@RequestBody Horario recurso) {
+    public ResponseEntity<Horario> registrar(@Valid @RequestBody Horario recurso) {
         Horario guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Horario> actualizar(@PathVariable Long id, @RequestBody Horario recurso) {
+    public ResponseEntity<Horario> actualizar(@PathVariable Long id, @Valid @RequestBody Horario recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

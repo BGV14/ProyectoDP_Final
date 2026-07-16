@@ -2,6 +2,7 @@ package utp.edu.pe.proyectodp.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.repository.AdministradorRepository;
 import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
@@ -12,10 +13,12 @@ import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
 public class AuthService {
 
     private final AdministradorRepository administradorRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public boolean login(String user, String password) {
         return administradorRepository.findAll().stream()
-                .filter(admin -> admin.getUser().equals(user) && admin.getPassword().equals(password))
+                .filter(admin -> admin.getUser().equals(user)
+                        && passwordEncoder.matches(password, admin.getPassword()))
                 .findFirst()
                 .map(admin -> {
                     var sesion = SesionSistema.getInstancia();

@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class ProvinciaController {
     }
 
     @PostMapping
-    public ResponseEntity<Provincia> registrar(@RequestBody Provincia recurso) {
+    public ResponseEntity<Provincia> registrar(@Valid @RequestBody Provincia recurso) {
         Provincia guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Provincia> actualizar(@PathVariable Long id, @RequestBody Provincia recurso) {
+    public ResponseEntity<Provincia> actualizar(@PathVariable Long id, @Valid @RequestBody Provincia recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

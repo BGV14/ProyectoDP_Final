@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class LibretaController {
     }
 
     @PostMapping
-    public ResponseEntity<Libreta> registrar(@RequestBody Libreta recurso) {
+    public ResponseEntity<Libreta> registrar(@Valid @RequestBody Libreta recurso) {
         Libreta guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Libreta> actualizar(@PathVariable Long id, @RequestBody Libreta recurso) {
+    public ResponseEntity<Libreta> actualizar(@PathVariable Long id, @Valid @RequestBody Libreta recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

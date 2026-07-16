@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class PagoController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> registrar(@RequestBody Pago pago) {
+    public ResponseEntity<Object> registrar(@Valid @RequestBody Pago pago) {
         try {
             Pago guardado = pagoService.guardar(pago);
             return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -45,7 +46,7 @@ public class PagoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> actualizar(@PathVariable Long id, @RequestBody Pago pago) {
+    public ResponseEntity<Object> actualizar(@PathVariable Long id, @Valid @RequestBody Pago pago) {
         try {
             return ResponseEntity.ok(pagoService.actualizar(id, pago));
         } catch (Exception e) {

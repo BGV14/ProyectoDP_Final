@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class ApoderadoController {
     }
 
     @PostMapping
-    public ResponseEntity<Apoderado> registrar(@RequestBody Apoderado recurso) {
+    public ResponseEntity<Apoderado> registrar(@Valid @RequestBody Apoderado recurso) {
         Apoderado guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Apoderado> actualizar(@PathVariable Long id, @RequestBody Apoderado recurso) {
+    public ResponseEntity<Apoderado> actualizar(@PathVariable Long id, @Valid @RequestBody Apoderado recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

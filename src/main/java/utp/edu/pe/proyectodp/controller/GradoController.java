@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,13 @@ public class GradoController {
     }
 
     @PostMapping
-    public ResponseEntity<Grado> registrar(@RequestBody Grado recurso) {
+    public ResponseEntity<Grado> registrar(@Valid @RequestBody Grado recurso) {
         Grado guardado = service.guardar(recurso);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Grado> actualizar(@PathVariable Long id, @RequestBody Grado recurso) {
+    public ResponseEntity<Grado> actualizar(@PathVariable Long id, @Valid @RequestBody Grado recurso) {
         return ResponseEntity.ok(service.actualizar(id, recurso));
     }
 

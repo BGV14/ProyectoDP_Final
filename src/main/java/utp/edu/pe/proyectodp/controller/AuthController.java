@@ -1,5 +1,6 @@
 package utp.edu.pe.proyectodp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
         boolean autenticado = authService.login(request.user(), request.password());
         if (autenticado) {
             return ResponseEntity.ok(Map.of("mensaje", "Autenticación exitosa"));

@@ -1,5 +1,8 @@
+// entity/Pago.java
 package utp.edu.pe.proyectodp.entity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Entity
@@ -18,10 +21,12 @@ public class Pago {
     @Column(unique = true)
     private String codigoPago;
 
+    @Positive(message = "El monto debe ser mayor a cero")
     private double monto;
     private String fechaPago;
     private String estadoPago;
 
     /** Método de pago solicitado: YAPE, PLIN, VISA, MASTERCARD, BBVA o BCP. */
+    @NotBlank(message = "El método de pago es obligatorio")
     private String metodoPago;
 }

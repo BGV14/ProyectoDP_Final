@@ -1,10 +1,10 @@
 package utp.edu.pe.proyectodp.service.impl;
 
 import utp.edu.pe.proyectodp.service.pattern.singlenton.SesionSistema;
-
 import utp.edu.pe.proyectodp.service.pattern.singlenton.ConfiguracionSistema;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import utp.edu.pe.proyectodp.entity.Administrador;
 import utp.edu.pe.proyectodp.exception.RecursoNoEncontradoException;
@@ -19,6 +19,7 @@ import java.util.Optional;
 public class AdministradorServiceImpl implements AdministradorService {
 
     private final AdministradorRepository administradorRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<Administrador> listar() {
@@ -42,6 +43,7 @@ public class AdministradorServiceImpl implements AdministradorService {
             throw new IllegalStateException("Debe iniciar sesión para realizar esta operación");
         }
 
+        administrador.setPassword(passwordEncoder.encode(administrador.getPassword()));
         return administradorRepository.save(administrador);
     }
 
@@ -51,10 +53,10 @@ public class AdministradorServiceImpl implements AdministradorService {
                 .map(admin -> {
                     admin.setCodigoAdministrador(administrador.getCodigoAdministrador());
                     admin.setUser(administrador.getUser());
-                    admin.setPassword(administrador.getPassword());
+                    admin.setPassword(passwordEncoder.encode(administrador.getPassword()));
                     return administradorRepository.save(admin);
                 })
-                .orElseThrow(() -> new RuntimeException("Administrador no encontrado con id: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Administrador no encontrado con id: " + id));
     }
 
     @Override
