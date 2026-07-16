@@ -18,6 +18,8 @@ public class Administrador {
     @Column(unique = true)
     private String codigoAdministrador;
 
+    @Column(name = "usuario")
     private String user;
+
     private String password;
 }
