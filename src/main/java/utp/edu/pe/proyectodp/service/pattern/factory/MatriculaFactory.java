@@ -1,6 +1,5 @@
 package utp.edu.pe.proyectodp.service.pattern.factory;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import utp.edu.pe.proyectodp.service.pattern.factory.interfaces.ProcesadorMatricula;
 
